@@ -1,4 +1,7 @@
-from row_printer import ColumnSpec, RowCollection
+from datetime import datetime
+from decimal import Decimal
+
+from row_printer import ColumnSpec, RowCollection, pretty_date, pretty_money
 
 
 class TestColumnSpec:
@@ -78,3 +81,27 @@ class TestRowCollection:
 | 3    | Jack Ga… |
 | ---- | -------- |"""
         assert expected == str(rows)
+
+
+class TestPrettyDate:
+    def test_it_returns_readable_string_for_datetime_ojbect(self):
+        some_sunday = datetime(2019, 3, 10, 15, 27, 34, 18)
+        assert '2019-03-10 15:27:34' == pretty_date(some_sunday)
+
+
+class TestPrettyMoney:
+    def test_it_returns_a_nicely_formatted_string_for_a_float(self):
+        amount = 21.50
+        assert '$21.50' == pretty_money(amount)
+
+    def test_it_returns_a_nicely_formatted_string_for_an_int(self):
+        amount = 21
+        assert '$21.00' == pretty_money(amount)
+
+    def test_it_returns_a_nicely_formatted_string_for_a_decimal(self):
+        amount = Decimal('21.50')
+        assert '$21.50' == pretty_money(amount)
+
+    def test_it_returns_a_nicely_formatted_string_with_commas_for_big_numbers(self):
+        amount = Decimal('1980.50')
+        assert '$1,980.50' == pretty_money(amount)

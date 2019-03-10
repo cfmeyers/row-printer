@@ -1,4 +1,5 @@
 from collections import namedtuple
+from datetime import datetime
 
 
 class ColumnSpec:
@@ -78,3 +79,14 @@ class RowCollection:
 
     def __len__(self):
         return len(self._rows)
+
+
+def pretty_date(d: datetime) -> str:
+    hours_minutes_seconds = d.strftime('%H:%M:%S')
+    pretty = d.strftime(f'%Y-%m-%d {hours_minutes_seconds}')
+    return pretty.ljust(19)
+
+
+def pretty_money(amount) -> str:
+    rounded_str = '${0:,.2f}'.format(amount)
+    return rounded_str
