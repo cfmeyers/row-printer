@@ -1,5 +1,6 @@
 from collections import namedtuple
 from datetime import datetime
+from decimal import Decimal
 
 
 class ColumnSpec:
