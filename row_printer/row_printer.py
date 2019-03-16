@@ -90,3 +90,52 @@ def pretty_date(d: datetime) -> str:
 def pretty_money(amount) -> str:
     rounded_str = '${0:,.2f}'.format(amount)
     return rounded_str
+
+
+def pretty_generic_decimal(amount) -> str:
+    rounded_str = '{0:,.2f}'.format(amount)
+    return rounded_str
+
+
+def pretty_int(amount) -> str:
+    rounded_str = '{0:,.0f}'.format(amount)
+    return rounded_str
+
+
+def get_max_width_of_items(items):
+    max_width = 0
+    for item in items:
+        if len(str(item)) > max_width:
+            max_width = len(str(item))
+    return max_width
+
+
+def guess_row_collection(rows):
+    col_specs = []
+    column_names = rows[0].keys()
+    for column_name in column_names:
+        column_type = type(rows[0][column_name])
+        values = [r[column_name] for r in rows if r[column_name] is not None]
+        # spec = ColumnSpec(
+        #     column_name, width=get_max_width_of_items([column_name] + values)
+        # )
+        if column_type == datetime:
+            spec = ColumnSpec(column_name, width=19, func=pretty_date)
+        if column_type in (Decimal, float):
+            spec = ColumnSpec(
+                column_name,
+                width=get_max_width_of_items([column_name] + values) + 6,
+                func=pretty_generic_decimal,
+            )
+        if column_type == int:
+            spec = ColumnSpec(
+                column_name, width=get_max_width_of_items([column_name] + values)
+            )
+        else:
+            spec = ColumnSpec(
+                column_name, width=get_max_width_of_items([column_name] + values)
+            )
+        col_specs.append(spec)
+    return RowCollection(
+        'GuessedRowCollection', column_specs=col_specs, headers=column_names
+    )
