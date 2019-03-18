@@ -12,6 +12,8 @@ class ColumnSpec:
 
     def transform(self, item):
         transformed = self.func(item)
+        if item is None:
+            item = '∅'
         if type(transformed) != str:
             transformed = str(transformed)
         if len(transformed) <= self.width:
