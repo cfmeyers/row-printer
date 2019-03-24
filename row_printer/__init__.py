@@ -6,4 +6,5 @@ from .row_printer import (
     pretty_generic_decimal,
     pretty_int,
     guess_row_collection,
+    clean_headers,
 )

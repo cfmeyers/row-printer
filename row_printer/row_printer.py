@@ -1,6 +1,7 @@
 from collections import namedtuple
 from datetime import datetime
 from decimal import Decimal
+import re
 
 
 class ColumnSpec:
@@ -101,36 +102,81 @@ def pretty_generic_decimal(amount) -> str:
 
 
 def pretty_int(amount) -> str:
-    rounded_str = '{0:,.0f}'.format(amount)
-    return rounded_str
+    int_str = '{0:,.0f}'.format(amount)
+    return int_str
 
 
-def get_max_width_of_items(items):
+def should_be_formatted_with_commas(column_name):
+    result = re.search(r'^(sum|count)_?', column_name)
+    return result
+
+
+def get_max_width_of_items(items, with_commas=False):
     max_width = 0
+    if with_commas:
+        string_function = pretty_int
+    else:
+        string_function = str
     for item in items:
-        if len(str(item)) > max_width:
-            max_width = len(str(item))
+        try:
+            item_length = len(string_function(item))
+        except:
+            item_length = len(str(item))
+        if item_length > max_width:
+            max_width = item_length
     return max_width
 
 
+def clean_headers(headers):
+    for header in headers:
+        function_header = re.search(r'(\w+)\((.*)\)', header)
+        if header == 'count(*)':
+            new_header = 'count'
+        elif function_header:
+            function_name = function_header.group(1)
+            function_args = function_header.group(2).replace(' ', '_')
+            new_header = function_name + '_' + function_args
+        else:
+            new_header = header
+        yield new_header
+
+
+def sanitize(old_rows):
+    rows = old_rows.copy()
+    headers = old_rows[0].keys()
+    cleaned_headers = list(clean_headers(headers))
+    for row in rows:
+        for old_header, new_header in zip(headers, cleaned_headers):
+            if old_header != new_header:
+                value = row[old_header]
+                row.pop(old_header, None)
+                row[new_header] = value
+    return rows
+
+
 def guess_row_collection(rows):
+    rows = sanitize(rows)
     col_specs = []
     column_names = rows[0].keys()
     for column_name in column_names:
         column_type = type(rows[0][column_name])
         values = [r[column_name] for r in rows if r[column_name] is not None]
-        # spec = ColumnSpec(
-        #     column_name, width=get_max_width_of_items([column_name] + values)
-        # )
         if column_type == datetime:
             spec = ColumnSpec(column_name, width=19, func=pretty_date)
-        if column_type in (Decimal, float):
+        elif column_type in (Decimal, float):
             spec = ColumnSpec(
                 column_name,
                 width=get_max_width_of_items([column_name] + values) + 6,
                 func=pretty_generic_decimal,
             )
-        if column_type == int:
+        elif column_type == int and should_be_formatted_with_commas(column_name):
+            spec = ColumnSpec(
+                column_name,
+                width=get_max_width_of_items([column_name] + values, with_commas=True),
+                func=pretty_int,
+            )
+
+        elif column_type == int:
             spec = ColumnSpec(
                 column_name, width=get_max_width_of_items([column_name] + values)
             )

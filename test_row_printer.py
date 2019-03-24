@@ -1,7 +1,14 @@
 from datetime import datetime
 from decimal import Decimal
 
-from row_printer import ColumnSpec, RowCollection, pretty_date, pretty_money
+from row_printer import (
+    ColumnSpec,
+    RowCollection,
+    pretty_date,
+    pretty_money,
+    guess_row_collection,
+    clean_headers,
+)
 
 
 class TestColumnSpec:
@@ -105,3 +112,25 @@ class TestPrettyMoney:
     def test_it_returns_a_nicely_formatted_string_with_commas_for_big_numbers(self):
         amount = Decimal('1980.50')
         assert '$1,980.50' == pretty_money(amount)
+
+
+class TestCleanHeaders:
+    def test_it_handles_count_with_star(self):
+        headers = ['count(*)']
+        assert ['count'] == list(clean_headers(headers))
+
+    def test_it_handles_count_distinct(self):
+        headers = ['count(distinct wombats)']
+        assert ['count_distinct_wombats'] == list(clean_headers(headers))
+
+    def test_it_handles_sum(self):
+        headers = ['sum(wombats)']
+        assert ['sum_wombats'] == list(clean_headers(headers))
+
+
+# class TestGuessRowCollection:
+#     def test_it_handles_count(self):
+#         rows = [{'count(*)': 27596962761}]
+#         actual = guess_row_collection(rows)
+#         actual.append(rows[0])
+#         full_str = str(actual)
