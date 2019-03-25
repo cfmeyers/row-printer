@@ -130,7 +130,11 @@ class TestCleanHeaders:
 
 # class TestGuessRowCollection:
 #     def test_it_handles_count(self):
-#         rows = [{'count(*)': 27596962761}]
+#         rows = [
+#             {'id': 1, 'count(distinct barcode)': 27596962761},
+#             {'id': 2, 'count(distinct barcode)': 77},
+#         ]
 #         actual = guess_row_collection(rows)
 #         actual.append(rows[0])
 #         full_str = str(actual)
+#         breakpoint()

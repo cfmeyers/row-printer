@@ -143,7 +143,7 @@ def clean_headers(headers):
 
 def sanitize(old_rows):
     rows = old_rows.copy()
-    headers = old_rows[0].keys()
+    headers = list(old_rows[0].keys())
     cleaned_headers = list(clean_headers(headers))
     for row in rows:
         for old_header, new_header in zip(headers, cleaned_headers):
