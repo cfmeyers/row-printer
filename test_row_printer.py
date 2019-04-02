@@ -129,7 +129,11 @@ class TestShouldBeFormattedWithCommas:
     def test_it_formats_total_columns_with_commas(self):
         assert should_be_formatted_with_commas('total') is True
         assert should_be_formatted_with_commas('total_this_thing') is True
+        assert should_be_formatted_with_commas('total_groups') is True
         assert should_be_formatted_with_commas('this_thing_total') is True
+
+    def test_it_formats_columns_that_end_with_s_with_commas(self):
+        assert should_be_formatted_with_commas('groups') is True
 
     def test_it_formats_knows_when_not_to_format_with_commas(self):
         assert should_be_formatted_with_commas('zcountz(*)') is False
