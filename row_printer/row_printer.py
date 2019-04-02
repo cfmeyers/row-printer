@@ -107,8 +107,9 @@ def pretty_int(amount) -> str:
 
 
 def should_be_formatted_with_commas(column_name):
-    result = re.search(r'^(sum|count)_?', column_name)
-    return result
+    starts_with_comma_word = bool(re.search(r'^(sum|count|total)_?', column_name))
+    ends_with_comma_word = bool(re.search(r'_(sum|count|total)$', column_name))
+    return starts_with_comma_word or ends_with_comma_word
 
 
 def get_max_width_of_items(items, with_commas=False):
